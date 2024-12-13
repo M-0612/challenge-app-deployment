@@ -4,6 +4,27 @@ COMMUNE_DATA_PATH = "./data/commune_data.csv"
 
 SCALER_PATH = "./model/knn_scaler.pkl"
 
+REQUIRED_COLUMNS = [
+    "living_area",
+    "commune",
+    "building_condition",
+    "subtype_of_property",
+    "equipped_kitchen",
+    "terrace",
+]
+
+FEATURE_ORDER = [
+    "living_area",
+    "com_avg_income",
+    "building_condition",
+    "subtype_of_property",
+    "latitude",
+    "longitude",
+    "equipped_kitchen",
+    "min_distance",
+    "terrace",
+]
+
 BUILDING_CONDITIONS = ["To Restore", "To Renovate", "Good", "Just Renovated", "As New"]
 
 PROPERTY_SUBTYPES = [

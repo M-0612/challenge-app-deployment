@@ -3,8 +3,9 @@
 import streamlit as st
 import pandas as pd
 import folium
-from folium.plugins import MarkerCluster
-from streamlit.components.v1 import html
+from preprocessing.cleaning_data import Preprocessor
+from predict.prediction import Predictor
+from typing import Any, Dict, List
 from config import (
     MODEL_PATH,
     COMMUNE_DATA_PATH,
@@ -12,12 +13,10 @@ from config import (
     EQUIPPED_KITCHEN,
     PROPERTY_SUBTYPES,
 )
-from preprocessing.cleaning_data import Preprocessor
-from predict.prediction import Predictor
-from typing import List, Any
 
 
 def main():
+    """Main entry point for the Streamlit app, sets up the page, initializes the app, and handles user interactions."""
     # Set page configuration
     st.set_page_config(
         page_title="ImmoEliza Real-Estate Price Predictor", layout="wide"
@@ -37,7 +36,7 @@ def main():
 
 
 class StreamlitApp:
-    """Class to deploy a streamlit app for property price predictions using a trained machine learning model."""
+    """Class to deploy a Streamlit app for property price predictions using a trained machine learning model."""
 
     def __init__(
         self,
@@ -45,8 +44,18 @@ class StreamlitApp:
         location_data_path: str,
         col_pair1: List[Any],
         col_pair2: List[Any],
-    ):
-        """Initializes the application with necessary components and data paths."""
+    ) -> None:
+        """Initializes the application with necessary components and data paths.
+
+        Args:
+            model_path (str): Path to the trained machine learning model.
+            location_data_path (str): Path to the CSV file containing commune data.
+            col_pair1 (List[Any]): Layout configuration for the first pair of columns.
+            col_pair2 (List[Any]): Layout configuration for the second pair of columns.
+
+        Returns:
+            None: Initializes the application.
+        """
         self.model_path = model_path
         self.location_data_path = location_data_path
 
@@ -54,7 +63,7 @@ class StreamlitApp:
         self.preprocessor = Preprocessor()
         self.predictor = Predictor(self.model_path)
 
-        # Load commune data
+        # Load location data (commune names, latitude, longitude, distance to nearest large city)
         self.commune_data = pd.read_csv(self.location_data_path)
         self.communes = sorted(
             Preprocessor.get_unique_values(
@@ -67,15 +76,23 @@ class StreamlitApp:
             col_pair1, col_pair2
         )
 
-    def create_columns(self, col_pair1: List[Any], col_pair2: List[Any]):
-        """Creates the layout columns for the app."""
+    def create_columns(self, col_pair1: List[Any], col_pair2: List[Any]) -> tuple:
+        """Creates the layout columns for the app.
+
+        Args:
+            col_pair1 (List[Any]): Layout configuration for the first pair of columns.
+            col_pair2 (List[Any]): Layout configuration for the second pair of columns.
+
+        Returns:
+            tuple: A tuple containing the four column layout.
+        """
         col1, col2 = st.columns(col_pair1)
         # Set divider
         st.markdown("---")
         col3, col4 = st.columns(col_pair2)
         return col1, col2, col3, col4
 
-    def set_layout(self):
+    def set_layout(self) -> None:
         """Sets up the layout of the Streamlit app."""
         with self.col1:
             # Set logo
@@ -86,9 +103,12 @@ class StreamlitApp:
             # Set title
             st.title("ImmoEliza Real-Estate Price Predictor")
 
-    def input_features(self):
-        """Displays input fields for user to enter feature values."""
+    def input_features(self) -> Dict[str, Any]:
+        """Displays input fields for user to enter feature values.
 
+        Returns:
+            Dict[str, Any]: A dictionary containing the input data from the user.
+        """
         with self.col3:
             st.subheader("Select Feature Values:")
             input_data = {
@@ -113,8 +133,12 @@ class StreamlitApp:
 
         return input_data
 
-    def predict_price(self, input_data: dict):
-        """Handles the prediction process and displays results."""
+    def predict_price(self, input_data: Dict[str, Any]) -> None:
+        """Handles the prediction process and displays results.
+
+        Args:
+            input_data (Dict[str, Any]): A dictionary containing the input data for prediction.
+        """
         try:
             # Preprocess input data
             preprocessed_data = self.preprocessor.preprocess(
@@ -128,8 +152,12 @@ class StreamlitApp:
         except ValueError as e:
             st.error(f"Error: {e}")
 
-    def display_map(self, selected_commune: str):
-        """Displays a map with the location of the selected commune."""
+    def display_map(self, selected_commune: str) -> None:
+        """Displays a map with the location of the selected commune.
+
+        Args:
+            selected_commune (str): The name of the commune to display on the map.
+        """
         commune_coordinates = self.commune_data[
             self.commune_data["commune"] == selected_commune
         ][["latitude", "longitude"]]
@@ -159,6 +187,3 @@ class StreamlitApp:
 # Initialize and run the app
 if __name__ == "__main__":
     main()
-
-
-# TODO: Export list of features from model creation and import here (to make sure input features are in the same order as when model was trained)

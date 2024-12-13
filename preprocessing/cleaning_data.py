@@ -1,16 +1,7 @@
-# Preprocesses received data
-
-"""
-This will implement functions to clean and preprocess the incoming data (e.g., handling missing values, encoding categorical features, etc.).
-
-Define preprocess() function that:
-- Takes input data for a house (e.g. location, living area, type of property, etc.)
-- Handles missing or incorrect data and returns an error to the user if required information is missing.
-- Returns cleaned data that is ready for the model
-"""
-
 from typing import Any, Dict, List
 from config import (
+    REQUIRED_COLUMNS,
+    FEATURE_ORDER,  # TODO: Export list of features from model creation and import here
     CONDITION_ENCODING,
     KITCHEN_ENCODING,
     SUBTYPE_MAPPING,
@@ -18,35 +9,11 @@ from config import (
     SCALER_PATH,
 )
 import pandas as pd
-import numpy as np
 import pickle
 
 
 class Preprocessor:
     """Preprocesses input data for the price prediction model."""
-
-    # Initialize required input columns
-    REQUIRED_COLUMNS = [
-        "living_area",
-        "commune",
-        "building_condition",
-        "subtype_of_property",
-        "equipped_kitchen",
-        "terrace",
-    ]
-
-    # Feature order when model was trained
-    FEATURE_ORDER = [
-        "living_area",
-        "com_avg_income",
-        "building_condition",
-        "subtype_of_property",
-        "latitude",
-        "longitude",
-        "equipped_kitchen",
-        "min_distance",
-        "terrace",
-    ]
 
     @classmethod
     def get_data(cls, import_path: str) -> pd.DataFrame:
@@ -114,13 +81,10 @@ class Preprocessor:
             scaler = pickle.load(scaler_file)
 
         # Reorder features
-        df = df[cls.FEATURE_ORDER]
+        df = df[FEATURE_ORDER]
 
         # Scale data
         scaled_data = scaler.transform(df.values)  # Convert DataFrame to NumPy array
-
-        # Return scaled data as a DataFrame (optional)
-        # scaled_df = pd.DataFrame(scaled_data, columns=cls.FEATURE_ORDER)
 
         return scaled_data
 
@@ -139,7 +103,7 @@ class Preprocessor:
             ValueError: If required data is missing.
         """
         # Validate required fields
-        missing_columns = [col for col in cls.REQUIRED_COLUMNS if col not in data]
+        missing_columns = [col for col in REQUIRED_COLUMNS if col not in data]
         if missing_columns:
             raise ValueError(f"Missing required fields: {', '.join(missing_columns)}")
 
@@ -180,9 +144,7 @@ class Preprocessor:
         )
 
         # Scale input data
-        scaled_data = cls.scale_data(
-            encoded_df, import_path=SCALER_PATH
-        )  # TODO: fit_transform or transform?
+        scaled_data = cls.scale_data(encoded_df, import_path=SCALER_PATH)
 
         # return preprocessed DataFrame
         return scaled_data
