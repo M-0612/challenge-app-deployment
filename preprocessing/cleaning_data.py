@@ -10,16 +10,43 @@ Define preprocess() function that:
 """
 
 from typing import Any, Dict, List
-from config import CONDITION_ENCODING, KITCHEN_ENCODING, SUBTYPE_MAPPING, SUBTYPE_ENCODING, SCALER_PATH
+from config import (
+    CONDITION_ENCODING,
+    KITCHEN_ENCODING,
+    SUBTYPE_MAPPING,
+    SUBTYPE_ENCODING,
+    SCALER_PATH,
+)
 import pandas as pd
 import numpy as np
 import pickle
+
 
 class Preprocessor:
     """Preprocesses input data for the price prediction model."""
 
     # Initialize required input columns
-    REQUIRED_COLUMNS = ['living_area', 'commune', 'building_condition', 'subtype_of_property', 'equipped_kitchen', 'terrace']
+    REQUIRED_COLUMNS = [
+        "living_area",
+        "commune",
+        "building_condition",
+        "subtype_of_property",
+        "equipped_kitchen",
+        "terrace",
+    ]
+
+    # Feature order when model was trained
+    FEATURE_ORDER = [
+        "living_area",
+        "com_avg_income",
+        "building_condition",
+        "subtype_of_property",
+        "latitude",
+        "longitude",
+        "equipped_kitchen",
+        "min_distance",
+        "terrace",
+    ]
 
     @classmethod
     def get_data(cls, import_path: str) -> pd.DataFrame:
@@ -34,7 +61,7 @@ class Preprocessor:
         """
         # Import and return commune data as DataFrame
         return pd.read_csv(import_path)
-    
+
     @classmethod
     def get_unique_values(cls, column: str, import_path: str) -> List[str]:
         """
@@ -43,7 +70,7 @@ class Preprocessor:
         Args:
             column (str): Name of column from which to extract unique values.
             import_path (str): Path and filename of the CSV file to be imported.
-        
+
         Returns:
             List[str]: List of commune names.
         """
@@ -51,9 +78,11 @@ class Preprocessor:
 
         # Get and return list of unique values
         return df[column].unique().tolist()
-    
+
     @classmethod
-    def manual_mapping(cls, df: pd.DataFrame, column: str, mapping: Dict[str, Any]) -> pd.DataFrame:
+    def manual_mapping(
+        cls, df: pd.DataFrame, column: str, mapping: Dict[str, Any]
+    ) -> pd.DataFrame:
         """
         Replaces categorical values in a given column based on a given mapping.
 
@@ -61,13 +90,13 @@ class Preprocessor:
             df (pd.DataFrame): Input DataFrame.
             column (str): Column to apply the mapping to.
             mapping (Dict[Str, Any]): Mapping values to apply to the column.
-        
+
         Returns:
             pd.DataFrame: DataFrame with replaced categorical values.
         """
         df[column] = df[column].map(mapping)
         return df
-    
+
     @classmethod
     def scale_data(cls, df: pd.DataFrame, import_path: str) -> pd.DataFrame:
         """
@@ -81,11 +110,17 @@ class Preprocessor:
             pd.DataFrame: Scaled DataFrame.
         """
         # Load saved scaler
-        with open(import_path, 'rb') as scaler_file:
+        with open(import_path, "rb") as scaler_file:
             scaler = pickle.load(scaler_file)
-        
+
+        # Reorder features
+        df = df[cls.FEATURE_ORDER]
+
         # Scale data
-        scaled_data = scaler.transform(df)
+        scaled_data = scaler.transform(df.values)  # Convert DataFrame to NumPy array
+
+        # Return scaled data as a DataFrame (optional)
+        # scaled_df = pd.DataFrame(scaled_data, columns=cls.FEATURE_ORDER)
 
         return scaled_data
 
@@ -96,10 +131,10 @@ class Preprocessor:
 
         Args:
             data (Dict[str, Any]): Raw input data for a house.
-        
+
         Returns:
             pd.DataFrame: Preprocessed data ready for prediction.
-        
+
         Raises:
             ValueError: If required data is missing.
         """
@@ -111,29 +146,43 @@ class Preprocessor:
         # Convert input data (dict) to DataFrame
         df = pd.DataFrame([data])
 
-        # Fill NaN values # TODO: use or remove
-        #df.fillna({  }, inplace=True)
-
         # Get commune data
         commune_data_df = cls.get_data(import_path)
 
         # Merge the DataFrames based on the 'commune' column
-        merged_df = pd.merge(df, commune_data_df, on='commune', how='left')
+        merged_df = pd.merge(df, commune_data_df, on="commune", how="left")
+
+        # Get coordinates
 
         # Drop 'commune' column
-        merged_df = merged_df.drop(columns=['commune'])
+        merged_df = merged_df.drop(columns=["commune"])
 
         # Convert terrace to binary
-        merged_df['terrace'] = df['terrace'].replace({'Yes': 1, 'No': 0})
+        pd.set_option(
+            "future.no_silent_downcasting", True
+        )  # Set global downcasting option
+        merged_df["terrace"] = (
+            df["terrace"].replace({"Yes": 1, "No": 0}).infer_objects(copy=False)
+        )  # Infer to better data type without returning a copy
 
         # Encode 'building_condition', 'subtype_of_property', 'equipped_kitchen' using manual label encoding as in ML
-        encoded_df = cls.manual_mapping(merged_df, column='building_condition', mapping=CONDITION_ENCODING)
-        encoded_df = cls.manual_mapping(encoded_df, column='subtype_of_property', mapping=SUBTYPE_MAPPING)
-        encoded_df = cls.manual_mapping(encoded_df, column='subtype_of_property', mapping=SUBTYPE_ENCODING)
-        encoded_df = cls.manual_mapping(encoded_df, column='equipped_kitchen', mapping=KITCHEN_ENCODING)
+        encoded_df = cls.manual_mapping(
+            merged_df, column="building_condition", mapping=CONDITION_ENCODING
+        )
+        encoded_df = cls.manual_mapping(
+            encoded_df, column="subtype_of_property", mapping=SUBTYPE_MAPPING
+        )
+        encoded_df = cls.manual_mapping(
+            encoded_df, column="subtype_of_property", mapping=SUBTYPE_ENCODING
+        )
+        encoded_df = cls.manual_mapping(
+            encoded_df, column="equipped_kitchen", mapping=KITCHEN_ENCODING
+        )
 
         # Scale input data
-        scaled_df = cls.scale_data(encoded_df, import_path=SCALER_PATH) # TODO: fit_transform or transform?
+        scaled_data = cls.scale_data(
+            encoded_df, import_path=SCALER_PATH
+        )  # TODO: fit_transform or transform?
 
-        # return list of communes and preprocessed DataFrame
-        return scaled_df
+        # return preprocessed DataFrame
+        return scaled_data

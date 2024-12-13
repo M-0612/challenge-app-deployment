@@ -4,52 +4,76 @@ COMMUNE_DATA_PATH = "./data/commune_data.csv"
 
 SCALER_PATH = "./model/knn_scaler.pkl"
 
-BUILDING_CONDITIONS = ["to restore", "to renovate", "good", "just renovated", "as new"]
+BUILDING_CONDITIONS = ["To Restore", "To Renovate", "Good", "Just Renovated", "As New"]
 
-PROPERTY_SUBTYPES = ["kot", "apartment", "ground floor", "flat studio", "service flat", "farmhouse", "mixed use building", "triplex", "duplex", "house", "town house", "bungalow", "chalet", "country cottage", "apartment block", "other property", "loft", "mansion", "penthouse", "villa", "manor house", "castle", "exceptional property"]
+PROPERTY_SUBTYPES = [
+    "Kot",
+    "Apartment",
+    "Ground Floor",
+    "Flat Studio",
+    "Service Flat",
+    "Farmhouse",
+    "Mixed Use Building",
+    "Triplex",
+    "Duplex",
+    "House",
+    "Town House",
+    "Bungalow",
+    "Chalet",
+    "Country Cottage",
+    "Apartment Block",
+    "Other Property",
+    "Loft",
+    "Mansion",
+    "Penthouse",
+    "Villa",
+    "Manor House",
+    "Castle",
+    "Exceptional Property",
+]
 
-EQUIPPED_KITCHEN = ['not installed', 'semi equipped', 'installed', 'hyper equipped']
+EQUIPPED_KITCHEN = ["Not Installed", "Semi Equipped", "Installed", "Hyper Equipped"]
 
 KITCHEN_ENCODING = {
-    "hyper equipped": 3,
-    "installed": 2,
-    "semi equipped": 1,
-    "not installed": 0,
+    "Hyper Equipped": 3,
+    "Installed": 2,
+    "Semi Equipped": 1,
+    "Not Installed": 0,
 }
 
 CONDITION_ENCODING = {
-    "as new": 5,
-    "just renovated": 4,
-    "good": 3,
-    "to be done up": 2,
-    "to renovate": 1,
-    "to restore": 0,
+    "As New": 5,
+    "Just Renovated": 4,
+    "Good": 3,
+    "To Be Done Up": 2,
+    "To Renovate": 1,
+    "To Restore": 0,
 }
 
 SUBTYPE_MAPPING = {
-    "villa": "luxury",
-    "exceptional property": "luxury",
-    "manor house": "luxury",
-    "castle": "luxury",
-    "penthouse": "luxury",
-    "mansion": "luxury",
-    "loft": "luxury",
-    "other property": "other",
-    "apartment block": "other",
-    "duplex": "house",
-    "country cottage": "house",
-    "chalet": "house",
-    "bungalow": "house",
-    "town house": "house",
-    "house": "house",
-    "triplex": "house",
-    "mixed use building": "mixed use building",
-    "farmhouse": "mixed use building",
-    "kot": "apartment",
-    "flat studio": "apartment",
-    "service flat": "apartment",
-    "ground floor": "apartment",
-    "apartment": "apartment"
+    "Villa": "luxury",
+    "Exceptional Property": "luxury",
+    "Manor House": "luxury",
+    "Castle": "luxury",
+    "Penthouse": "luxury",
+    "Mansion": "luxury",
+    "Loft": "luxury",
+    "Other Property": "other",
+    "Apartment Block": "other",
+    "Duplex": "house",
+    "Country Cottage": "house",
+    "Chalet": "house",
+    "Bungalow": "house",
+    "Town House": "house",
+    "House": "house",
+    "Triplex": "house",
+    "Mixed Use Building": "mixed use building",
+    "Farmhouse": "mixed use building",
+    "Kot": "apartment",
+    "Flat Studio": "apartment",
+    "Service Flat": "apartment",
+    "Ground Floor": "apartment",
+    "Apartment": "apartment",
 }
 
 SUBTYPE_ENCODING = {
