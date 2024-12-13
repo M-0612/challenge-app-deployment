@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#57d683"               # Accent color
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "f0f2f6"    # Input fields background color
+textColor = "#1d328d"
+font = "sans serif"

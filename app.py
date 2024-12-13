@@ -28,14 +28,27 @@ COMMUNES = sorted(
 # Set page configuration
 st.set_page_config(page_title="ImmoEliza Price Prediction App", layout="wide")
 
-# Streamlit app layout
-st.title("ImmoEliza Price Prediction App")
+# Create two columns for logo and title
+col1, col2 = st.columns([1, 15])
+
+with col1:
+    # Set Logo
+    st.write("")
+    st.image(
+        './images/logo.png', width=90
+    )
+
+with col2:
+    # Title
+    st.title("ImmoEliza Price Prediction App")
+
+st.markdown('---')
 
 # Create two columns: one for the map and one for the input fields ([]) sets ratio
-col1, col2 = st.columns([2, 1])
+col3, col4 = st.columns([1.2, 2])
 
 # Right column: Input fields
-with col2:
+with col3:
     st.subheader("Select Feature Values:")
     input_data = {
         "living_area": st.number_input("Living Area (m²)"),
@@ -73,7 +86,7 @@ commune_coordinates = COMMUNE_DATA[COMMUNE_DATA["commune"] == selected_commune][
 ]
 
 # Left column: Show map of selected commune using folium
-with col1:
+with col4:
     if not commune_coordinates.empty:
         lat = commune_coordinates.iloc[0]["latitude"]
         lon = commune_coordinates.iloc[0]["longitude"]
