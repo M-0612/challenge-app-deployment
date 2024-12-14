@@ -69,7 +69,8 @@ challenge-app-deployment
 ├── data/                  # Real-estate dataset for heatmap
 │   └── exported_data.csv
 ├── images/                # App visuals (e.g., logo)
-│   └── logo.png
+│   ├── logo.png
+│   └── screenshot.png
 ├── model/                 # Saved KNN model and scaler
 │   ├── knn_model.pkl
 │   └── knn_scaler.pkl
@@ -147,7 +148,7 @@ challenge-app-deployment
 
 App preview:
 
-*App Screenshot*
+<img src='images/screenshot.png' alt='App Screenshot' width='400'>
 
 ## Contributors
 
