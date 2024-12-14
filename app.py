@@ -3,12 +3,13 @@
 import streamlit as st
 import pandas as pd
 import folium
+from folium.plugins import HeatMap
 from preprocessing.cleaning_data import Preprocessor
 from predict.prediction import Predictor
 from typing import Any, Dict, List
 from config import (
     MODEL_PATH,
-    COMMUNE_DATA_PATH,
+    DATA_PATH,
     BUILDING_CONDITIONS,
     EQUIPPED_KITCHEN,
     PROPERTY_SUBTYPES,
@@ -23,9 +24,7 @@ def main():
     )
 
     # Load data and initialize app
-    app = StreamlitApp(
-        MODEL_PATH, COMMUNE_DATA_PATH, col_pair1=[1, 15], col_pair2=[1.2, 2]
-    )
+    app = StreamlitApp(MODEL_PATH, DATA_PATH, col_pair1=[1, 15], col_pair2=[1.2, 2])
     # Set layout
     app.set_layout()
     # Set input mask
@@ -41,7 +40,7 @@ class StreamlitApp:
     def __init__(
         self,
         model_path: str,
-        location_data_path: str,
+        data_path: str,
         col_pair1: List[Any],
         col_pair2: List[Any],
     ) -> None:
@@ -49,7 +48,7 @@ class StreamlitApp:
 
         Args:
             model_path (str): Path to the trained machine learning model.
-            location_data_path (str): Path to the CSV file containing commune data.
+            data_path (str): Path to the CSV file containing commune data.
             col_pair1 (List[Any]): Layout configuration for the first pair of columns.
             col_pair2 (List[Any]): Layout configuration for the second pair of columns.
 
@@ -57,7 +56,7 @@ class StreamlitApp:
             None: Initializes the application.
         """
         self.model_path = model_path
-        self.location_data_path = location_data_path
+        self.data_path = data_path
         self.col_pair1 = col_pair1
         self.col_pair2 = col_pair2
 
@@ -66,11 +65,9 @@ class StreamlitApp:
         self.predictor = Predictor(self.model_path)
 
         # Load location data (commune names, latitude, longitude, distance to nearest large city)
-        self.commune_data = pd.read_csv(self.location_data_path)
+        self.data = pd.read_csv(self.data_path)
         self.communes = sorted(
-            Preprocessor.get_unique_values(
-                column="commune", import_path=self.location_data_path
-            )
+            Preprocessor.get_unique_values(column="commune", import_path=self.data_path)
         )
 
         # Initialize columns
@@ -161,7 +158,7 @@ class StreamlitApp:
         try:
             # Preprocess input data
             preprocessed_data = self.preprocessor.preprocess(
-                data=input_data, import_path=self.location_data_path
+                data=input_data, import_path=self.data_path
             )
             # Get prediction
             prediction = self.predictor.predict(preprocessed_data)
@@ -177,9 +174,9 @@ class StreamlitApp:
         Args:
             selected_commune (str): The name of the commune to display on the map.
         """
-        commune_coordinates = self.commune_data[
-            self.commune_data["commune"] == selected_commune
-        ][["latitude", "longitude"]]
+        commune_coordinates = self.data[self.data["commune"] == selected_commune][
+            ["latitude", "longitude"]
+        ]
 
         with self.col4:
             if not commune_coordinates.empty:
@@ -192,6 +189,20 @@ class StreamlitApp:
                     "CartoDB voyager",
                     attr="Map tiles by CartoDB, under CC BY 3.0, Data by OpenStreetMap, under ODbL",
                 ).add_to(m)
+
+                # Heatmap toggle
+                add_heatmap = st.toggle(
+                    "Show Heatmap of Regional Price Trends", value=True
+                )
+                if add_heatmap:
+                    # Prepare heatmap data
+                    heatmap_data = self.data[
+                        ["latitude", "longitude", "price"]
+                    ].dropna()
+                    heatmap_points = heatmap_data.values.tolist()
+
+                    # Add the heatmap layer
+                    HeatMap(heatmap_points, radius=15).add_to(m)
 
                 # Add a marker for the commune
                 folium.Marker([lat, lon], popup=f"{selected_commune}").add_to(m)

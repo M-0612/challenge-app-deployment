@@ -1,6 +1,6 @@
-MODEL_PATH = "./model/knn_model.pkl"
+DATA_PATH = "./data/exported_data.csv"
 
-COMMUNE_DATA_PATH = "./data/commune_data.csv"
+MODEL_PATH = "./model/knn_model.pkl"
 
 SCALER_PATH = "./model/knn_scaler.pkl"
 
