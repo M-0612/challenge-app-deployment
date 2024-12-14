@@ -75,10 +75,8 @@ challenge-app-deployment
 │   ├── knn_model.pkl
 │   └── knn_scaler.pkl
 ├── predict/               # Prediction logic
-│   ├── __init__.py
 │   └── prediction.py
 ├── preprocessing/         # Data cleaning and preprocessing logic
-│   ├── __init__.py
 │   └── cleaning_data.py
 ├── app.py                 # Main Streamlit app
 ├── config.py              # Configuration settings for paths and options
@@ -125,12 +123,6 @@ challenge-app-deployment
   * **Purpose and Usage:**
     * Ensures new input data matches the scale of the training data for accurate predictions.
     * Used by the `predict()` method in `prediction.py`
-
-* `__init__.py` Files
-  * **Description:** Makes the `preprocessing` and `predict` directories Python packages.
-  * **Purpose:**
-    * Enables importing modules within these directories.
-    * Contains no additional logic for this project.
 
 * `config.py`
   * **Description:** Stores configuration constants used throughout the app.
