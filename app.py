@@ -58,6 +58,8 @@ class StreamlitApp:
         """
         self.model_path = model_path
         self.location_data_path = location_data_path
+        self.col_pair1 = col_pair1
+        self.col_pair2 = col_pair2
 
         # Initialize preprocessor and predictor
         self.preprocessor = Preprocessor()
@@ -73,7 +75,7 @@ class StreamlitApp:
 
         # Initialize columns
         self.col1, self.col2, self.col3, self.col4 = self.create_columns(
-            col_pair1, col_pair2
+            self.col_pair1, self.col_pair2
         )
 
     def create_columns(self, col_pair1: List[Any], col_pair2: List[Any]) -> tuple:
@@ -112,18 +114,35 @@ class StreamlitApp:
         with self.col3:
             st.subheader("Select Feature Values:")
             input_data = {
-                "living_area": st.number_input("Living Area (m²)"),
-                "commune": st.selectbox("Select a Commune", self.communes),
+                "living_area": st.number_input(
+                    "Living Area (m²)",
+                    help="The total floor space of the property in square meters.",
+                ),
+                "commune": st.selectbox(
+                    "Select a Commune",
+                    self.communes,
+                    help="The locality where the property is situated.",
+                ),
                 "building_condition": st.select_slider(
-                    "Select the Building Condition:", BUILDING_CONDITIONS
+                    "Select the Building Condition:",
+                    BUILDING_CONDITIONS,
+                    help="Rate the overall state of the property.",
                 ),
                 "subtype_of_property": st.selectbox(
-                    "Select a Property Subtype:", PROPERTY_SUBTYPES
+                    "Select a Property Subtype:",
+                    PROPERTY_SUBTYPES,
+                    help="Choose the specific type of property.",
                 ),
                 "equipped_kitchen": st.selectbox(
-                    "Select Kitchen Equipment:", EQUIPPED_KITCHEN
+                    "Select Kitchen Equipment:",
+                    EQUIPPED_KITCHEN,
+                    help="Indicate if the kitchen is fully equipped, semi-equipped or not equipped.",
                 ),
-                "terrace": st.selectbox("Terrace", ["No", "Yes"]),
+                "terrace": st.selectbox(
+                    "Terrace",
+                    ["No", "Yes"],
+                    help="Specific whether the property has a terrace.",
+                ),
             }
             st.write("")
 

@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 from config import (
     REQUIRED_COLUMNS,
-    FEATURE_ORDER,  # TODO: Export list of features from model creation and import here
+    FEATURE_ORDER,
     CONDITION_ENCODING,
     KITCHEN_ENCODING,
     SUBTYPE_MAPPING,
