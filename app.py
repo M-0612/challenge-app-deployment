@@ -192,7 +192,7 @@ class StreamlitApp:
 
                 # Heatmap toggle
                 add_heatmap = st.toggle(
-                    "Show Heatmap of Regional Price Trends", value=True
+                    "Show Heatmap of Regional Price Patterns", value=True
                 )
                 if add_heatmap:
                     # Prepare heatmap data
