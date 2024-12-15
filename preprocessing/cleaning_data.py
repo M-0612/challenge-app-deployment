@@ -10,27 +10,14 @@ from config import (
 )
 import pandas as pd
 import pickle
+import streamlit as st
 
 
 class Preprocessor:
     """Preprocesses input data for the price prediction model."""
 
     @classmethod
-    def get_data(cls, import_path: str) -> pd.DataFrame:
-        """
-        Imports commune data (commune names, latitude, longitude, distance to nearest large city).
-
-        Args:
-            import_path (str): Path and filename of the CSV file to be imported.
-
-        Returns:
-            pd.DataFrame: The imported data as DataFrame.
-        """
-        # Import and return commune data as DataFrame
-        return pd.read_csv(import_path)
-
-    @classmethod
-    def get_unique_values(cls, column: str, import_path: str) -> List[str]:
+    def get_unique_values(cls, data: pd.DataFrame, column: str) -> List[str]:
         """
         Extracts a list of unique values from a specific column in a DataFrame.
 
@@ -41,10 +28,8 @@ class Preprocessor:
         Returns:
             List[str]: List of commune names.
         """
-        df = cls.get_data(import_path)
-
         # Get and return list of unique values
-        return df[column].unique().tolist()
+        return data[column].unique().tolist()
 
     @classmethod
     def manual_mapping(
@@ -89,12 +74,15 @@ class Preprocessor:
         return scaled_data
 
     @classmethod
-    def preprocess(cls, data: Dict[str, Any], import_path: str) -> pd.DataFrame:
+    def preprocess(
+        cls, exported_data: pd.DataFrame, input_data: Dict[str, Any]
+    ) -> pd.DataFrame:
         """
         Preprocesses the input data for the ML model
 
         Args:
-            data (Dict[str, Any]): Raw input data for a house.
+            exported_data (pd.DataFrame): Data exported from training the machine learning model to include
+            input_data (Dict[str, Any]): Raw input data for a house.
 
         Returns:
             pd.DataFrame: Preprocessed data ready for prediction.
@@ -103,47 +91,68 @@ class Preprocessor:
             ValueError: If required data is missing.
         """
         # Validate required fields
-        missing_columns = [col for col in REQUIRED_COLUMNS if col not in data]
+        missing_columns = [col for col in REQUIRED_COLUMNS if col not in input_data]
         if missing_columns:
             raise ValueError(f"Missing required fields: {', '.join(missing_columns)}")
 
-        # Convert input data (dict) to DataFrame
-        df = pd.DataFrame([data])
+        # Select columns from exported data to merge
+        cols_to_merge = [
+            "commune",
+            "latitude",
+            "longitude",
+            "min_distance",
+            "com_avg_income",
+        ]
+        df_to_merge = exported_data[cols_to_merge]
 
-        # Get commune data
-        commune_data_df = cls.get_data(import_path)
+        # Get 'commune' from input data
+        input_commune = input_data.get("commune")
 
-        # Drop price column from commune_data_df?
+        # Check if commune exists in df_to_merge
+        if input_commune in df_to_merge["commune"].values:
+            # Lookup the first row matching the input commune
+            matched_row = df_to_merge.loc[df_to_merge["commune"] == input_commune].iloc[
+                0
+            ]
 
-        # Merge the DataFrames based on the 'commune' column
-        merged_df = pd.merge(df, commune_data_df, on="commune", how="left")
+            # Create a new DataFrame with the combined information
+            combined_data = {
+                **input_data,
+                **matched_row.to_dict(),
+            }  # Merge dictionaries
 
-        # Drop 'commune' column
-        merged_df = merged_df.drop(columns=["commune"])
+            # Convert combined data to DataFrame
+            combined_df = pd.DataFrame([combined_data])
+
+        else:
+            # If commune not in data
+            raise ValueError(f"Commune '{input_commune}' not found in the data.")
 
         # Convert terrace to binary
         pd.set_option(
             "future.no_silent_downcasting", True
         )  # Set global downcasting option
-        merged_df["terrace"] = (
-            df["terrace"].replace({"Yes": 1, "No": 0}).infer_objects(copy=False)
+        combined_df["terrace"] = (
+            combined_df["terrace"]
+            .replace({"Yes": 1, "No": 0})
+            .infer_objects(copy=False)
         )  # Infer to better data type without returning a copy
 
         # Encode 'building_condition', 'subtype_of_property', 'equipped_kitchen' using manual label encoding as in ML
         encoded_df = cls.manual_mapping(
-            merged_df, column="building_condition", mapping=CONDITION_ENCODING
+            combined_df, column="building_condition", mapping=CONDITION_ENCODING
         )
         encoded_df = cls.manual_mapping(
-            encoded_df, column="subtype_of_property", mapping=SUBTYPE_MAPPING
+            combined_df, column="subtype_of_property", mapping=SUBTYPE_MAPPING
         )
         encoded_df = cls.manual_mapping(
-            encoded_df, column="subtype_of_property", mapping=SUBTYPE_ENCODING
+            combined_df, column="subtype_of_property", mapping=SUBTYPE_ENCODING
         )
         encoded_df = cls.manual_mapping(
-            encoded_df, column="equipped_kitchen", mapping=KITCHEN_ENCODING
+            combined_df, column="equipped_kitchen", mapping=KITCHEN_ENCODING
         )
 
-        # Scale input data
+        # Scale input data (selects columns to be kept and scaled)
         scaled_data = cls.scale_data(encoded_df, import_path=SCALER_PATH)
 
         # return preprocessed DataFrame

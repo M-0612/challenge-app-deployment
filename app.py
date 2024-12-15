@@ -3,6 +3,7 @@
 import streamlit as st
 import pandas as pd
 import folium
+from branca.colormap import LinearColormap
 from folium.plugins import HeatMap
 from preprocessing.cleaning_data import Preprocessor
 from predict.prediction import Predictor
@@ -69,7 +70,7 @@ class StreamlitApp:
         # Load location data (commune names, latitude, longitude, distance to nearest large city)
         self.data = pd.read_csv(self.data_path)
         self.communes = sorted(
-            Preprocessor.get_unique_values(column="commune", import_path=self.data_path)
+            Preprocessor.get_unique_values(data=self.data, column="commune")
         )
 
         # Initialize columns
@@ -167,8 +168,10 @@ class StreamlitApp:
         try:
             # Preprocess input data
             preprocessed_data = self.preprocessor.preprocess(
-                data=input_data, import_path=self.data_path
+                exported_data=self.data,
+                input_data=input_data,
             )
+
             # Get prediction
             prediction = self.predictor.predict(preprocessed_data)
             predicted_price = prediction.iloc[0]
@@ -187,7 +190,7 @@ class StreamlitApp:
         be_lat, be_lon = 50.8503, 4.3517  # Apr. center of Belgium
 
         with self.col4:
-            # Initialize map
+            # Check, if a commune has been selected
             if selected_commune and selected_commune != "--Select--":
                 # Focus on selected commune
                 commune_coordinates = self.data[
@@ -198,6 +201,7 @@ class StreamlitApp:
                     lon = commune_coordinates.iloc[0]["longitude"]
 
                 else:
+                    # Notify and show default view of Belgium
                     st.warning(
                         f"Coordinates for {selected_commune} not found. Showing Belgium map."
                     )
@@ -209,6 +213,7 @@ class StreamlitApp:
 
             # Create a folium map centered around the commune coordinates
             m = folium.Map(location=[lat, lon], zoom_start=8)
+            # Add tile layer
             folium.TileLayer(
                 "CartoDB voyager",
                 attr="Map tiles by CartoDB, under CC BY 3.0, Data by OpenStreetMap, under ODbL",
@@ -222,15 +227,34 @@ class StreamlitApp:
             ):
                 folium.Marker([lat, lon], popup=f"{selected_commune}").add_to(m)
 
-            # Add heatmap toggle
+            # Add toggle to switch heatmap on or off
             add_heatmap = st.toggle(
-                "Show Heatmap of Regional Price Patterns", value=True
+                "Show Heatmap of Regional Price Patterns (Price per sqm (€))",
+                value=True,
             )
             if add_heatmap:
-                # Add heatmap layer
-                heatmap_data = self.data[["latitude", "longitude", "price"]].dropna()
+                # Calc price per sqm
+                self.data["price_per_sqm"] = (
+                    self.data["price"] / self.data["living_area"]
+                )
+
+                # Prepare heatmap data
+                heatmap_data = self.data[
+                    ["latitude", "longitude", "price_per_sqm"]
+                ].dropna()
                 heatmap_points = heatmap_data.values.tolist()
+
+                # Add heatmap
                 HeatMap(heatmap_points, radius=15).add_to(m)
+
+                # Add a scale for the heatmap
+                colormap = LinearColormap(
+                    colors=["blue", "green", "yellow", "red"],
+                    vmin=heatmap_data["price_per_sqm"].min(),
+                    vmax=heatmap_data["price_per_sqm"].max(),
+                    caption=f"Heatmap (Price per sqm (€))",
+                )
+                colormap.add_to(m)
 
             # Display map in Streamlit
             map_html = m._repr_html_()
