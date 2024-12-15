@@ -25,7 +25,7 @@ FEATURE_ORDER = [
     "terrace",
 ]
 
-BUILDING_CONDITIONS = ["To Restore", "To Renovate", "Good", "Just Renovated", "As New"]
+BUILDING_CONDITIONS = ["To Restore", "To Renovate", "To Refresh", "Good", "Just Renovated", "As New"]
 
 PROPERTY_SUBTYPES = [
     "Kot",
@@ -66,7 +66,7 @@ CONDITION_ENCODING = {
     "As New": 5,
     "Just Renovated": 4,
     "Good": 3,
-    "To Be Done Up": 2,
+    "To Refresh": 2,
     "To Renovate": 1,
     "To Restore": 0,
 }

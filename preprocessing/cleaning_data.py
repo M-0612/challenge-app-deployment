@@ -113,10 +113,10 @@ class Preprocessor:
         # Get commune data
         commune_data_df = cls.get_data(import_path)
 
+        # Drop price column from commune_data_df?
+
         # Merge the DataFrames based on the 'commune' column
         merged_df = pd.merge(df, commune_data_df, on="commune", how="left")
-
-        # Get coordinates
 
         # Drop 'commune' column
         merged_df = merged_df.drop(columns=["commune"])
