@@ -25,12 +25,14 @@ def main():
 
     # Load data and initialize app
     app = StreamlitApp(MODEL_PATH, DATA_PATH, col_pair1=[1, 15], col_pair2=[1.2, 1.5])
-    # Set layout
+    # Set app layout
     app.set_layout()
-    # Set input mask
+    # Set input mask and handle prediction button
     input_data = app.input_features()
+    # Get the value of the selected commune
     selected_commune = input_data.get("commune")
     if selected_commune:
+        # Display map of selected commune
         app.display_map(selected_commune)
 
 
@@ -119,7 +121,7 @@ class StreamlitApp:
                 ),
                 "commune": st.selectbox(
                     "Select a Commune",
-                    options=['--Select--'] + self.communes,
+                    options=["--Select--"] + self.communes,
                     help="The locality where the property is situated.",
                 ),
                 "building_condition": st.select_slider(
@@ -129,17 +131,17 @@ class StreamlitApp:
                 ),
                 "subtype_of_property": st.selectbox(
                     "Select a Property Subtype:",
-                    options=['--Select--'] + PROPERTY_SUBTYPES,
+                    options=["--Select--"] + PROPERTY_SUBTYPES,
                     help="Choose the specific type of property.",
                 ),
                 "equipped_kitchen": st.selectbox(
                     "Select Kitchen Equipment:",
-                    options=['--Select--'] + EQUIPPED_KITCHEN,
+                    options=["--Select--"] + EQUIPPED_KITCHEN,
                     help="Indicate if the kitchen is fully equipped, semi-equipped or not equipped.",
                 ),
                 "terrace": st.selectbox(
                     "Terrace",
-                    options=['--Select--'] + ["No", "Yes"],
+                    options=["--Select--"] + ["No", "Yes"],
                     help="Specific whether the property has a terrace.",
                 ),
             }
@@ -147,12 +149,12 @@ class StreamlitApp:
 
             # Prediction button
             if st.button("Predict Price"):
-                if any(value in [None, '--Select--', 0] for value in input_data.values()):
+                if any(
+                    value in [None, "--Select--", 0] for value in input_data.values()
+                ):
                     st.error("Please fill in all fields before submitting.")
                 else:
                     self.predict_price(input_data)
-
-        
 
         return input_data
 
@@ -182,20 +184,23 @@ class StreamlitApp:
             selected_commune (str): The name of the commune to display on the map.
         """
         # Default coordinates for Belgium
-        be_lat, be_lon = 50.8503, 4.3517 # Apr. center of Belgium
+        be_lat, be_lon = 50.8503, 4.3517  # Apr. center of Belgium
 
         with self.col4:
             # Initialize map
             if selected_commune and selected_commune != "--Select--":
                 # Focus on selected commune
-                commune_coordinates = self.data[self.data["commune"] == selected_commune][
-                    ["latitude", "longitude"]]
+                commune_coordinates = self.data[
+                    self.data["commune"] == selected_commune
+                ][["latitude", "longitude"]]
                 if not commune_coordinates.empty:
                     lat = commune_coordinates.iloc[0]["latitude"]
                     lon = commune_coordinates.iloc[0]["longitude"]
 
                 else:
-                    st.warning(f"Coordinates for {selected_commune} not found. Showing Belgium map.")
+                    st.warning(
+                        f"Coordinates for {selected_commune} not found. Showing Belgium map."
+                    )
                     lat, lon = be_lat, be_lon
 
             else:
@@ -210,11 +215,17 @@ class StreamlitApp:
             ).add_to(m)
 
             # Add a marker if a valid commune is selected
-            if selected_commune and selected_commune != '--Select--' and not commune_coordinates.empty:
+            if (
+                selected_commune
+                and selected_commune != "--Select--"
+                and not commune_coordinates.empty
+            ):
                 folium.Marker([lat, lon], popup=f"{selected_commune}").add_to(m)
 
             # Add heatmap toggle
-            add_heatmap = st.toggle("Show Heatmap of Regional Price Patterns", value=True)
+            add_heatmap = st.toggle(
+                "Show Heatmap of Regional Price Patterns", value=True
+            )
             if add_heatmap:
                 # Add heatmap layer
                 heatmap_data = self.data[["latitude", "longitude", "price"]].dropna()
@@ -224,6 +235,7 @@ class StreamlitApp:
             # Display map in Streamlit
             map_html = m._repr_html_()
             st.components.v1.html(map_html, height=500)
+
 
 # Initialize and run the app
 if __name__ == "__main__":
