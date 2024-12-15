@@ -1,11 +1,11 @@
 # ImmoEliza Real-Estate Price Predictor 📊🏠
 
 Welcome to the **ImmoEliza Real-Estate Price Predictor**! 
-This Streamlit app allows users to interact with a trained machine learning model to predict the price of real estate properties in Belgium, based on user entries of feature values such as for living area, building condition, location, etc. 
+This app is the fourth and final phase of the *ImmoEliza project*, which is part of the BeCode Data Science and AI Bootcamp.
 
-## Description
+The project's purpose is to deliver a Streamlit-based application that integrates a K-Nearest Neighbors (KNN) regression model, allowing users to estimate real estate prices for Belgium, based on user entries of feature values such as for living area, building condition, location, etc.
 
-This app is the fourth and final phase of the *ImmoEliza project*, which is part of the BeCode Data Science and AI Bootcamp. The project's purpose is to deliver a Streamlit-based application that integrates a K-Nearest Neighbors (KNN) regression model, allowing users to estimate real estate prices interactively.
+The provided map shows the location of the selected commune using coordinates from the original dataset. A toggle switch allows users to enable or disable a heatmap displaying prices per square meter across Belgium. When enabled, the heatmap visually highlights areas with lower to higher property prices, offering the users insights into regional pricing patterns.
 
 **Limitations:**
 
@@ -19,7 +19,6 @@ This app is the fourth and final phase of the *ImmoEliza project*, which is part
   * Integrating real-time market trends.
   * Adding other machine learning models for comparison and better accuracy. 
 
----
 
 ## Installation
 
@@ -33,25 +32,23 @@ Follow these steps to set up the app locally:
    ```
 2. **Install Dependencies**
     
-    Create a virtual environment and install the required libraries:
+    Install the required libraries:
 
     ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
     pip install -r requirements.txt
     ``` 
 
-3. **Launch the App**
 
-    Run the app locally:
-
-    ```bash
-    streamlit run app.py
-    ```
 
 ## Usage
 
-1. Open the app in your browser (http://localhost:8501).
+1. Access the app online on Streamlit via the link https://immoeliza-price-prediction.streamlit.app/
+   * Alternatively: Run the script locally with the command:
+  
+      ```bash
+      streamlit run app.py
+      ```
+      and access the app via your browser (http://localhost:8501).
    
 2. Fill in the property details, such as living area, location, building condition, kitchen details, etc.
 
@@ -97,8 +94,9 @@ challenge-app-deployment
 ### Key Files
 
 * `data/exported_data.csv`
-  * **Description:** The dataset used during machine learning containing real-estate data, including commune names, latitude, longitude, and prices.
+  * **Description:** The dataset used during machine learning containing real-estate data, including commune names, latitude, longitude, etc..
   * **Purpose:**
+    * Adds location-related data relevant for price prediction, but not to be provided by the user (coordinates, average taxable income per commune, distances to the nearest large city)
     * Contains essential data (e.g. commune coordinates) for geospatial functionalities.
     * Provides commune-specific data for map visualization and heatmap creation.
 
