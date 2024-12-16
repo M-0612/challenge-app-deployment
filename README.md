@@ -12,8 +12,9 @@ The provided map shows the location of the selected commune using coordinates fr
 **Limitations:**
 
 * Predictions rely on the quality of input data. Missing or inaccurate values can lead to errors.
+* Currently, the user can only choose from a small number of features. This is due to the use of a KNN regression model which struggles with high-dimensional data (for a detailed explanation, see below).
+* Predictions depend heavily on the quality and coverage of the dataset. The original dataset is based on, may contain imbalanced representation of different properties and features. As a result, certain feature combinations may result in inaccurate predictions.
 * The app currently does not support real-time updates or external datasets.
-* Predictions depend heavily on the quality and coverage of the dataset. The original dataset the KNN regression model is based on, may contain imbalanced representation of different properties and features. As a result, certain feature combinations may result in inaccurate predictions.
   
 * Improvements could include:
   * Expanding feature choice and countries.
@@ -22,9 +23,17 @@ The provided map shows the location of the selected commune using coordinates fr
   * Adding other machine learning models for comparison and better accuracy. 
 
 
+## Why the App Uses a Limited Number of Features for Price Prediction
+The app currently only allows users to choose from a small set of features, which include living area, commune, building condition, property subtype, equipped kitchen, and terrace. Additionally, commune coordinates, average taxable income, and distance to the nearest large city are pre-loaded as they significantly improve predictions. Since these features depend on the selected commune, they are added automatically, without the need for user-input.
+
+These features were carefully selected based on the performance of the KNN regression model during its development and testing. Adding more features led to worse evaluation metrics, which can be attributed to the following factors:
+* Curse of Dimensionality: KNN struggles with high-dimensional data, where distance calculations become less meaningful, leading to decreased model performance.
+* Overfitting: Including too many features can cause the model to overfit, meaning it performs well on training data but poorly on new data.
+* Irrelevant Features: Extra features can introduce noise, making the model more complex without improving its accuracy.
+
 ## Installation
 
-Follow these steps to set up the app locally:
+The app can be accessed online via Streamlit as explained under 'Usage'. To run the app locally, follow these steps to set up the app locally:
 
 1. **Clone the Repository and Navigate to Directory**
    ```bash
