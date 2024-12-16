@@ -105,25 +105,72 @@ class StreamlitApp:
             # Set title
             st.title("ImmoEliza Real-Estate Price Predictor")
 
+    def sync_fields(self, field):
+        """Synchronize two fields dynamically. Here: commune and zip code."""
+        if field == "zip_code":
+            try:
+                zip_code = int(st.session_state["zip_code"])
+                matched_commune = self.data[self.data["zip_code"] == zip_code]
+                if not matched_commune.empty:
+                    st.session_state["commune"] = matched_commune.iloc[0]["commune"]
+                else:
+                    st.warning(f"No match found for zip code '{zip_code}'.")
+            except ValueError:
+                st.warning("Invalid zip code format. Please enter numbers only.")
+        
+        elif field == "commune":
+            commune = st.session_state["commune"]
+            matched_zip = self.data[self.data["commune"] == commune]
+            if not matched_zip.empty:
+                st.session_state["zip_code"] = str(matched_zip.iloc[0]["zip_code"])
+            else:
+                st.warning(f"No match found for commune '{commune}'.")
+
     def input_features(self) -> Dict[str, Any]:
         """Displays input fields for user to enter feature values.
 
         Returns:
             Dict[str, Any]: A dictionary containing the input data from the user.
         """
+        # Initialize session state for commune
+        if "commune" not in st.session_state:
+            st.session_state["commune"] = "--Select--"
+        # Initialize session state for zip code
+        if "zip_code" not in st.session_state:
+            st.session_state["zip_code"] = ""
+
         with self.col3:
-            st.subheader("Select Feature Values:")
+            st.subheader("Enter Feature Values:")
+
+            # Inputs for commune and zip code
+            st.text_input(
+                "Enter a Zip Code:",
+                key="zip_code",
+                on_change=self.sync_fields,
+                args=("zip_code",),
+                help="The postal code of the property. Leave empty if entering commune name.",
+            )
+            st.selectbox(
+                "Select a Commune:",
+                options=["--Select--"] + self.communes,
+                index=(
+                    ["--Select--"] + self.communes
+                ).index(st.session_state["commune"])
+                if st.session_state["commune"] in self.communes
+                else 0,
+                key="commune",
+                on_change=self.sync_fields,
+                args=("commune",),
+                help="The locality where the property is situated.",
+            )
+
+            # Add input fields for other features
             input_data = {
                 "living_area": st.number_input(
-                    "Living Area (m²)",
+                    "Enter Living Area (m²):",
                     value=None,
                     step=1,
                     help="The total floor space of the property in square meters.",
-                ),
-                "commune": st.selectbox(
-                    "Select a Commune",
-                    options=["--Select--"] + self.communes,
-                    help="The locality where the property is situated.",
                 ),
                 "building_condition": st.select_slider(
                     "Select the Building Condition:",
@@ -141,15 +188,19 @@ class StreamlitApp:
                     help="Indicate if the kitchen is fully equipped, semi-equipped or not equipped.",
                 ),
                 "terrace": st.selectbox(
-                    "Terrace",
+                    "Select if the Property has a Terrace:",
                     options=["--Select--"] + ["No", "Yes"],
-                    help="Specific whether the property has a terrace.",
+                    help="Indicate, if the property has a terrace.",
                 ),
+                # Add entries for commune and zip code
+                "commune": st.session_state["commune"],
+                "zip_code": st.session_state["zip_code"],
             }
             st.write("")
 
             # Prediction button
             if st.button("Predict Price"):
+                # Check if all values are filled in
                 if any(
                     value in [None, "--Select--", 0] for value in input_data.values()
                 ):
