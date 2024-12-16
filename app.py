@@ -155,8 +155,8 @@ class StreamlitApp:
                 options=["--Select--"] + self.communes,
                 index=(
                     ["--Select--"] + self.communes
-                ).index(st.session_state["commune"])
-                if st.session_state["commune"] in self.communes
+                ).index(st.session_state.get("commune", "--Select--"))
+                if st.session_state.get("commune", "--Select--") in ["--Select--"] + self.communes
                 else 0,
                 key="commune",
                 on_change=self.sync_fields,
