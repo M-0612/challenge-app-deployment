@@ -3,7 +3,7 @@
 Welcome to the **ImmoEliza Real-Estate Price Predictor**! 
 This app is the fourth and final phase of the *ImmoEliza project*, which is part of the BeCode Data Science and AI Bootcamp.
 
-The project's purpose is to deliver a Streamlit-based application that integrates a K-Nearest Neighbors (KNN) regression model, allowing users to estimate real estate prices for Belgium, based on user entries of feature values such as for living area, building condition, location, etc.
+The project's purpose is to deliver a Streamlit-based application that integrates a K-Nearest Neighbors (KNN) regression model, allowing users to estimate real estate prices for Belgium, based on feature values used for machine learning such as living area, commune, building condition, property subtype, kitchen equipment and availability of a terrace. In the background, the app loads coordination data, average taxable income of the commune as well as the distance to the nearest large city from the original dataset, encodes and standardizes the data and computes a price prediction using the trained machine learning model.
 
 The provided map shows the location of the selected commune using coordinates from the original dataset. A toggle switch allows users to enable or disable a heatmap displaying prices per square meter across Belgium. When enabled, the heatmap visually highlights areas with lower to higher property prices, offering the users insights into regional pricing patterns.
 
@@ -11,7 +11,7 @@ The provided map shows the location of the selected commune using coordinates fr
 
 * Predictions rely on the quality of input data. Missing or inaccurate values can lead to errors.
 * The app currently does not support real-time updates or external datasets.
-* Predictions depend heavily on the quality and coverage of the dataset. The original dataset the KNN regression model is based on may contain imbalanced representation of different properties and features. As a result, certain feature combinations may result in inaccurate predictions.
+* Predictions depend heavily on the quality and coverage of the dataset. The original dataset the KNN regression model is based on, may contain imbalanced representation of different properties and features. As a result, certain feature combinations may result in inaccurate predictions.
   
 * Improvements could include:
   * Expanding feature choice and countries.
