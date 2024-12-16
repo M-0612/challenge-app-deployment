@@ -37,7 +37,7 @@ The app can be accessed online via Streamlit as explained under 'Usage'. To run 
 
 1. **Clone the Repository and Navigate to Directory**
    ```bash
-   git clone https//github.com/M-0612/challenge-app-deployment.git
+   git clone https//github.com/Miriam-Stoehr/challenge-app-deployment.git
 
    cd challenge-app-deployment
    ```
@@ -53,7 +53,7 @@ The app can be accessed online via Streamlit as explained under 'Usage'. To run 
 
 ## Usage
 
-1. Access the app online on Streamlit via the link https://immoeliza-price-prediction.streamlit.app/
+1. Access the app online on Streamlit via the link https://immoeliza-property-price-prediction.streamlit.app/
    * Alternatively: Run the script locally with the command:
   
       ```bash
