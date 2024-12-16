@@ -117,7 +117,7 @@ class StreamlitApp:
                     st.warning(f"No match found for zip code '{zip_code}'.")
             except ValueError:
                 st.warning("Invalid zip code format. Please enter numbers only.")
-        
+
         elif field == "commune":
             commune = st.session_state["commune"]
             matched_zip = self.data[self.data["commune"] == commune]
@@ -154,10 +154,13 @@ class StreamlitApp:
                 "Select a Commune:",
                 options=["--Select--"] + self.communes,
                 index=(
-                    ["--Select--"] + self.communes
-                ).index(st.session_state.get("commune", "--Select--"))
-                if st.session_state.get("commune", "--Select--") in ["--Select--"] + self.communes
-                else 0,
+                    (["--Select--"] + self.communes).index(
+                        st.session_state.get("commune", "--Select--")
+                    )
+                    if st.session_state.get("commune", "--Select--")
+                    in ["--Select--"] + self.communes
+                    else 0
+                ),
                 key="commune",
                 on_change=self.sync_fields,
                 args=("commune",),
