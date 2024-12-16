@@ -103,7 +103,7 @@ class StreamlitApp:
 
         with self.col2:
             # Set title
-            st.title("ImmoEliza Real-Estate Price Predictor")
+            st.title("ImmoEliza Property Price Predictor")
 
     def sync_fields(self, field):
         """Synchronize two fields dynamically. Here: commune and zip code."""
