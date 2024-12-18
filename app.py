@@ -215,7 +215,7 @@ class StreamlitApp:
                     ### Disclaimer:
                     This prediction is generated using a machine learning model trained on historical property data. It is an estimate based on the provided features. External factors such as market trends, or unique property characteristics are not considered.
 
-                    Please consult a real estate professional for a comprehensive evaluation.
+                    Please use this prediction as a general guide and consult a real estate professional for more precise valuations.
                     """)
         return input_data
 
