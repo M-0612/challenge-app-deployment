@@ -210,7 +210,13 @@ class StreamlitApp:
                     st.error("Please fill in all fields before submitting.")
                 else:
                     self.predict_price(input_data)
+                    # Show disclaimer
+                    st.markdown("""
+                    ### Disclaimer:
+                    This prediction is generated using a machine learning model trained on historical property data. It is an estimate based on the provided features. External factors such as market trends, or unique property characteristics are not considered.
 
+                    Please consult a real estate professional for a comprehensive evaluation.
+                    """)
         return input_data
 
     def predict_price(self, input_data: Dict[str, Any]) -> None:
